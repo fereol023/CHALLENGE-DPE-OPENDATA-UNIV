@@ -1,0 +1,8 @@
+# environnements virtuels
+venv/
+env/
+.venv/
+.env/
+
+# data
+ressources/data/
