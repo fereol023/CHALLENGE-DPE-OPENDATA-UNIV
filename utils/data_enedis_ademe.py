@@ -73,7 +73,7 @@ class DataEnedisAdeme:
             self.debugger.update({'source_enedis': self.path_enedis_csv})
 
             enedis_data = self.load_enedis_from_csv()
-            enedis_data = enedis_data[enedis_data['Code Département']==75]
+            enedis_data = enedis_data[enedis_data['Code Département']==75] # restriction paris 
         self.debugger.update({'sample_enedis_data': enedis_data.tail(5)})
 
         # 2- extraire les adresses complètes
@@ -104,26 +104,34 @@ class DataEnedisAdeme:
         
         # extraire enedis avec les infos de la BAN
         enedis_with_ban_data = self.get_enedis_with_ban_pandas(requete_url_enedis, from_export=from_export)
+        enedis_with_ban_data.to_csv('../ressources/data/0_archive/enedis_with_ban_data_tmp.csv') 
+        enedis_with_ban_data_id_BAN_list = enedis_with_ban_data.id_BAN.values.tolist()
+        del enedis_with_ban_data ##SUPPR LE TEMPS DE REQUETER ADEME // MEMEORY ERROR HANDLING
         # sur la base des Identifiants BAN de enedis, aller chercher les logements mappés sur ces codes BAN
         # plusieurs adresses possibles pour un id BAN 
         # car les données enedis sont regroupées/agrégées. Toutefois, on dispose de la moyenne.
         ademe_data = []
-        ademe_data_res = [requests.get(self.get_url_ademe_filter_on_ban(_)).json().get('results') for _ in enedis_with_ban_data.id_BAN.values.tolist()] # liste à 2 niveaux # pour chaque Id_BAN on a plusieurs lignes ademe
+        ## TODO: MEMORY ERROR HANDLING
+        # ademe_data_res = [requests.get(self.get_url_ademe_filter_on_ban(_)).json().get('results') for _ in enedis_with_ban_data.id_BAN.values.tolist()] # liste à 2 niveaux # pour chaque Id_BAN on a plusieurs lignes ademe
+        ademe_data_res = [requests.get(self.get_url_ademe_filter_on_ban(_)).json().get('results') for _ in enedis_with_ban_data_id_BAN_list] # liste à 2 niveaux # pour chaque Id_BAN on a plusieurs lignes ademe        
         for _ in ademe_data_res:
             ademe_data.extend(_)
+        del ademe_data_res
         ademe_data = pd.DataFrame(ademe_data)
-
         ademe_data = ademe_data.add_suffix('_ademe')
+        ademe_data.to_csv('../ressources/data/0_archive/ademe_data_tmp.csv')
+
+        # RELOAD LE TMP FILE ENEDIS DATA
+        enedis_with_ban_data = pd.read_csv('../ressources/data/0_archive/enedis_with_ban_data_tmp.csv') 
         enedis_with_ban_data = enedis_with_ban_data.add_suffix('_enedis_with_ban')
 
-        del ademe_data_res
         return pd.merge(ademe_data,
                         enedis_with_ban_data,
                         how='left',
                         left_on='Identifiant__BAN_ademe',
                         right_on='id_BAN_enedis_with_ban')
 
-    def extract_sample_year_rows(self, year:int=2018, rows:int=20):
+    def extract_year_rows(self, year:int=2018, rows:int=20):
         res = self.get_enedis_with_ban_with_ademe(self.get_url_enedis_year_rows(year,rows))
         logging.warning(f"Extraction results : {res.shape[0]} rows, {res.shape[1]} columns.")
         return res
