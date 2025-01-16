@@ -3,12 +3,15 @@ import pandas as pd
 
 warnings.filterwarnings('ignore')
 
-from utils.fonctions import get_entropy, compute_entropies, normalize_df_colnames
+from src.artifacts import MLFlowExp
+from utils.fonctions import get_entropy, compute_entropies, normalize_df_colnames, get_today_date
 
 
-class DataPreprocessor:
-    def __init__(self, df):
-        self.nettoyage = Nettoyage(df)
+class DataPreprocessor(MLFlowExp):
+    def __init__(self, df, experiment_name='0_dataset_cleaning'):
+        self.experiment_name = experiment_name
+        super().__init__(self.experiment_name)
+        self.nettoyage = Nettoyage(df, self.experiment_name, self.mlflow)
 
     def run(self):
         try:
@@ -22,13 +25,14 @@ class DataPreprocessor:
             os.makedirs(os.path.dirname(to_path))
         try:
             self.nettoyage.df.to_parquet(to_path, engine='pyarrow', compression='gzip')
+            self.mlflow.log_artifact(to_path, artifact_path=f"data_pipelines/cleaning_{get_today_date()}")
         except Exception as e:
             print(f"Exception occured while saving data processed : {e}")
 
 
 class Nettoyage:
 
-    def __init__(self, df):
+    def __init__(self, df, experiment_name, _mlflow):
         self.df = normalize_df_colnames(df)
         self.cols_to_delete = set()
         self.df_entropies = None
@@ -36,6 +40,7 @@ class Nettoyage:
         self.fillna_step = False
         self.cast_object_columns_step = False
         self.delete_based_on_entropies_step = False
+        self.mlflow = _mlflow
         
     def delete_colnan(self, tauxseuil=0.9):
         nanames, entro, extra = [], [], []
@@ -52,7 +57,7 @@ class Nettoyage:
                     extra.append(c)
                 if entropy == 1 or entropy == 0:
                     entro.append(c)
-            
+
             print("Il y a {} colonnes vides avec au moins {}% , {} colonnes avec une entropy de 1 ou 0 et {} colonnes inutiles.".format(len(nanames),tauxseuil*100, len(entro), len(extra)))
             self.cols_to_delete.update(nanames+extra+entro)
             if len(self.cols_to_delete) > 0:
@@ -60,6 +65,11 @@ class Nettoyage:
                 self.df = self.df.drop(list(self.cols_to_delete), axis=1)
                 print("Done")
                 print(f"Il reste {len(self.df.columns)} colonnes.")
+                
+                self.mlflow.log_metric("nan_cols", len(nanames))
+                self.mlflow.log_metric("entropy_cols", len(entro))
+                self.mlflow.log_metric("extra_cols", len(extra))
+
             self.delete_colnan_step = True
         return self
         
@@ -94,4 +104,15 @@ class Nettoyage:
         return self
 
     def run(self):
+        self.mlflow.log_param("Input_data_rows", self.df.shape[0])
+        self.mlflow.log_param("Input_data_features", self.df.shape[1])
         self.delete_colnan().cast_object_columns()
+        self.mlflow.log_param("Output_data_rows", self.df.shape[0])
+        self.mlflow.log_param("Output_data_features", self.df.shape[1])
+        # logger un apercu du dataset
+        mlflow_dataset_apercu = self.mlflow.data.from_pandas(
+            self.df.head(5),
+            # targets="target",  # we specify the target column
+            name="DPE ENEDIS ADEME Dataset" # we specify the name of the dataset
+        )
+        self.mlflow.log_input(mlflow_dataset_apercu, context="cleaned_dataset")
