@@ -7,6 +7,16 @@ from src.artifacts import MLFlowExp
 from utils.fonctions import get_entropy, compute_entropies, normalize_df_colnames, get_today_date
 
 
+class TestExp(MLFlowExp):
+    """Classe test pour le fonctionnement de mlflow"""
+    def __init__(self, experiment_name="test"):
+        self.experiment_name = experiment_name
+        super().__init__(self.experiment_name)
+    
+    def run(self):
+        print(f'Running : {self.experiment_name}')
+
+
 class DataPreprocessor(MLFlowExp):
     def __init__(self, df, experiment_name='0_dataset_cleaning'):
         self.experiment_name = experiment_name
