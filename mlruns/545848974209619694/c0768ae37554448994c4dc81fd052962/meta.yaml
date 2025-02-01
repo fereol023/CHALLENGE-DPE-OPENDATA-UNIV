@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/gbeno/Documents/m2_deng/ydays/CHALLENGE-DPE-OPENDATA-UNIV/mlruns/545848974209619694/c0768ae37554448994c4dc81fd052962/artifacts
+end_time: 1738416549345
+entry_point_name: ''
+experiment_id: '545848974209619694'
+lifecycle_stage: active
+run_id: c0768ae37554448994c4dc81fd052962
+run_name: enthused-bear-54
+run_uuid: c0768ae37554448994c4dc81fd052962
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1738416342495
+status: 3
+tags: []
+user_id: gbeno

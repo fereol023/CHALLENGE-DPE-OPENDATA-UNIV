@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/gbeno/Documents/m2_deng/ydays/CHALLENGE-DPE-OPENDATA-UNIV/mlruns/545848974209619694/8b2100af54d54a779b5c770a53741bcf/artifacts
+end_time: 1738416734013
+entry_point_name: ''
+experiment_id: '545848974209619694'
+lifecycle_stage: active
+run_id: 8b2100af54d54a779b5c770a53741bcf
+run_name: bouncy-snake-937
+run_uuid: 8b2100af54d54a779b5c770a53741bcf
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1738416572337
+status: 3
+tags: []
+user_id: gbeno

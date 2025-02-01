@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/gbeno/Documents/m2_deng/ydays/CHALLENGE-DPE-OPENDATA-UNIV/mlruns/545848974209619694/886fb2795c284e9a982dc8cd9b80333d/artifacts
+end_time: 1738417371877
+entry_point_name: ''
+experiment_id: '545848974209619694'
+lifecycle_stage: active
+run_id: 886fb2795c284e9a982dc8cd9b80333d
+run_name: rumbling-snipe-341
+run_uuid: 886fb2795c284e9a982dc8cd9b80333d
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1738416797309
+status: 4
+tags: []
+user_id: gbeno

@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/gbeno/Documents/m2_deng/ydays/CHALLENGE-DPE-OPENDATA-UNIV/mlruns/545848974209619694/7a9ef68f4d88483c96848ef9f145e810/artifacts
+end_time: 1738410770324
+entry_point_name: ''
+experiment_id: '545848974209619694'
+lifecycle_stage: active
+run_id: 7a9ef68f4d88483c96848ef9f145e810
+run_name: sincere-carp-64
+run_uuid: 7a9ef68f4d88483c96848ef9f145e810
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1738410619501
+status: 3
+tags: []
+user_id: gbeno

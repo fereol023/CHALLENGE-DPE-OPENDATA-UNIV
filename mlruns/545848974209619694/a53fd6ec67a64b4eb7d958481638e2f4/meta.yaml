@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/gbeno/Documents/m2_deng/ydays/CHALLENGE-DPE-OPENDATA-UNIV/mlruns/545848974209619694/a53fd6ec67a64b4eb7d958481638e2f4/artifacts
+end_time: 1738339457494
+entry_point_name: ''
+experiment_id: '545848974209619694'
+lifecycle_stage: active
+run_id: a53fd6ec67a64b4eb7d958481638e2f4
+run_name: peaceful-tern-192
+run_uuid: a53fd6ec67a64b4eb7d958481638e2f4
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1738339377828
+status: 4
+tags: []
+user_id: gbeno

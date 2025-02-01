@@ -1,8 +1,24 @@
-import re
+import re, pickle, os
 import numpy as np, pandas as pd
 from functools import lru_cache
 from unidecode import unidecode
 from datetime import datetime
+
+def load_pickle(fpath, is_optional=False):
+    if (not os.path.exists(fpath) and (not is_optional)):
+        raise Exception(f"File {fpath} does not exist and is not optional !")
+    with open(fpath, 'rb') as f:
+        res = pickle.load(f)
+    return res
+
+
+def save_pickle(obj, fpath):
+    """obj : serialisable obj"""
+    if not os.path.exists(os.path.dirname(fpath)):
+        os.makedirs(os.path.dirname(fpath))
+    with open(fpath, 'wb') as f:
+        pickle.dump(obj, f)
+    print(f"Sauvegarde ok at : {fpath}")
 
 
 def get_entropy(pk, L):

@@ -1,0 +1,17 @@
+digest: d0a86946
+name: test set sample
+profile: '{"num_rows": 5, "num_elements": 55}'
+schema: '{"mlflow_colspec": [{"type": "double", "name": "conso_eclairage_e_finale_ademe",
+  "required": true}, {"type": "string", "name": "etiquette_dpe_ademe", "required":
+  true}, {"type": "double", "name": "conso_ecs_e_finale_ademe", "required": true},
+  {"type": "double", "name": "version_dpe_ademe", "required": true}, {"type": "double",
+  "name": "deperditions_murs_ademe", "required": true}, {"type": "double", "name":
+  "deperditions_baies_vitrees_ademe", "required": true}, {"type": "double", "name":
+  "deperditions_ponts_thermiques_ademe", "required": true}, {"type": "double", "name":
+  "conso_chauffage_e_finale_ademe", "required": true}, {"type": "double", "name":
+  "deperditions_enveloppe_ademe", "required": true}, {"type": "double", "name": "deperditions_renouvellement_air_ademe",
+  "required": true}, {"type": "double", "name": "consommation_annuelle_moyenne_par_logement_de_l_adresse_mwh_enedis_with_ban",
+  "required": true}]}'
+source: '{"tags": {"mlflow.user": "gbeno", "mlflow.source.name": "src/pipelines/train.py",
+  "mlflow.source.type": "LOCAL", "mlflow.source.git.commit": "f5c1400f9600aa0b15de785a1c3a53130d308a06"}}'
+source_type: code

@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/gbeno/Documents/m2_deng/ydays/CHALLENGE-DPE-OPENDATA-UNIV/mlruns/545848974209619694/0177aebb82654c61bdf49be9dbd794cc/artifacts
+end_time: 1738420441412
+entry_point_name: ''
+experiment_id: '545848974209619694'
+lifecycle_stage: active
+run_id: 0177aebb82654c61bdf49be9dbd794cc
+run_name: unleashed-gull-135
+run_uuid: 0177aebb82654c61bdf49be9dbd794cc
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1738420359903
+status: 4
+tags: []
+user_id: gbeno
