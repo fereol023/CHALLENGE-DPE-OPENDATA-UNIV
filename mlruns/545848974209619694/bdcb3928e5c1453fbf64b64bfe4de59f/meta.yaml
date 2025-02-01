@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/gbeno/Documents/m2_deng/ydays/CHALLENGE-DPE-OPENDATA-UNIV/mlruns/545848974209619694/bdcb3928e5c1453fbf64b64bfe4de59f/artifacts
+end_time: 1738408576962
+entry_point_name: ''
+experiment_id: '545848974209619694'
+lifecycle_stage: active
+run_id: bdcb3928e5c1453fbf64b64bfe4de59f
+run_name: painted-steed-175
+run_uuid: bdcb3928e5c1453fbf64b64bfe4de59f
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1738407593503
+status: 3
+tags: []
+user_id: gbeno

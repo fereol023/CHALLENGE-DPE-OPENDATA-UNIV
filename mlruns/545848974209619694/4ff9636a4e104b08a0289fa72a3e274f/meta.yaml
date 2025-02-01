@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/gbeno/Documents/m2_deng/ydays/CHALLENGE-DPE-OPENDATA-UNIV/mlruns/545848974209619694/4ff9636a4e104b08a0289fa72a3e274f/artifacts
+end_time: 1738420281955
+entry_point_name: ''
+experiment_id: '545848974209619694'
+lifecycle_stage: active
+run_id: 4ff9636a4e104b08a0289fa72a3e274f
+run_name: bouncy-squirrel-488
+run_uuid: 4ff9636a4e104b08a0289fa72a3e274f
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1738420272426
+status: 4
+tags: []
+user_id: gbeno

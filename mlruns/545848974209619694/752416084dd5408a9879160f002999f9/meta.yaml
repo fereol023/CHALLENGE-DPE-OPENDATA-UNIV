@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/gbeno/Documents/m2_deng/ydays/CHALLENGE-DPE-OPENDATA-UNIV/mlruns/545848974209619694/752416084dd5408a9879160f002999f9/artifacts
+end_time: 1738409809376
+entry_point_name: ''
+experiment_id: '545848974209619694'
+lifecycle_stage: active
+run_id: 752416084dd5408a9879160f002999f9
+run_name: fearless-robin-689
+run_uuid: 752416084dd5408a9879160f002999f9
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1738409480471
+status: 3
+tags: []
+user_id: gbeno

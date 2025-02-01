@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/gbeno/Documents/m2_deng/ydays/CHALLENGE-DPE-OPENDATA-UNIV/mlruns/545848974209619694/77bfa64b10c04d9bb4ee7045d180defe/artifacts
+end_time: 1738332736169
+entry_point_name: ''
+experiment_id: '545848974209619694'
+lifecycle_stage: active
+run_id: 77bfa64b10c04d9bb4ee7045d180defe
+run_name: skillful-flea-733
+run_uuid: 77bfa64b10c04d9bb4ee7045d180defe
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1738332524032
+status: 3
+tags: []
+user_id: gbeno
