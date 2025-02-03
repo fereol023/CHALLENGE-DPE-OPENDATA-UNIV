@@ -6,8 +6,9 @@ class MLFlowExp(ABC):
         self.experiment_name = experiment_name
         mlflow.set_experiment(self.experiment_name)
         self.mlflow = mlflow
+        # self.mlflow.autolog()
         print(f'-> Experiment : {self.experiment_name} started..')
-        print(f'-> Tracking folder : {self.mlflow.get_tracking_uri()}')
+        # print(f'-> Tracking folder : {self.mlflow.get_tracking_uri()}')
         print(f'-> Registry folder : {self.mlflow.get_registry_uri()}')
 
     @abstractmethod
