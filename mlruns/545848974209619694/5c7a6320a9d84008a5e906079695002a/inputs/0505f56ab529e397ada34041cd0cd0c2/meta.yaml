@@ -1,6 +1,0 @@
-destination_id: 65bca783911196b7b651402ac24d0235
-destination_type: RUN
-source_id: 65bca783911196b7b651402ac24d0235
-source_type: DATASET
-tags:
-  mlflow.data.context: test set sample
