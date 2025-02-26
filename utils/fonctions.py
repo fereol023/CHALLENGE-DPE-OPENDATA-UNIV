@@ -83,6 +83,10 @@ def normalize_name(colname):
     pat1, pat2 = re.compile('[^0-9a-zA-Z]+'), re.compile('_+')
     return pat1.sub('_', pat2.sub('_', colname))
 
+def normalize_colnames_list(list_colnames=[]):
+    if list_colnames:
+        return list(map(lambda c: normalize_name(unidecode(c)).lower(), list_colnames))
+    return []
 
 def normalize_df_colnames(df):
     return df.rename(columns={c: normalize_name(unidecode(c)).lower() for c in df.columns})
