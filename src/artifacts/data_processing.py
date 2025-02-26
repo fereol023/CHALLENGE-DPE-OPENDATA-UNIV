@@ -47,10 +47,17 @@ class DataPreprocessor(MLFlowExp):
 class Nettoyage:
     """Classe principale qui gère le nettoyage d'un df."""
 
+    to_drop = ["street_enedis_with_ban", "name_enedis_with_ban", "id_BAN_enedis_with_ban", "housenumber_enedis_with_ban", "label_enedis_with_ban", "full_adress_enedis_with_ban",
+            "adresse_enedis_with_ban","Libellé de voie_enedis_with_ban", "Type de voie_enedis_with_ban", "Nom IRIS_enedis_with_ban", "N°_DPE_immeuble_associé_ademe", "Nom__rue_(BAN)_ademe",
+            "Identifiant__BAN_ademe","Complément_d'adresse_bâtiment_ademe", "Adresse_brute_ademe", "N°DPE_ademe", "N°_voie_(BAN)_ademe", "Complément_d'adresse_logement_ademe",
+            "Adresse_(BAN)_ademe","_geopoint_ademe","Statut_géocodage_ademe", "Description_installation_ECS_ademe", "Description_générateur_ECS_n°1_ademe",
+            "Description_générateur_chauffage_n°1_installation_n°1_ademe", "Description_installation_chauffage_n°1_ademe", 
+            "score_enedis_with_ban", "x_enedis_with_ban", "y_enedis_with_ban","importance_enedis_with_ban"]
+
     def __init__(self, df, cols_to_delete_mano=[], inplace=False):
         self.df = df if inplace else df.copy()
         self.df = normalize_df_colnames(self.df)
-        self.cols_to_delete_mano = list(set(cols_to_delete_mano))
+        self.cols_to_delete_mano = list(set(cols_to_delete_mano)) + Nettoyage.to_drop
         self.cols_to_delete_mano = normalize_colnames_list(self.cols_to_delete_mano)
         self.variables_deleted = {"mano": self.cols_to_delete_mano}
         self.variables_typed = {}
@@ -91,7 +98,7 @@ class Nettoyage:
 
         for c in self.df.columns:
             tauxnan = round(self.df[c].isna().sum()/len(self.df),2)
-            pk = df[c].value_counts(normalize=True, dropna = False).values
+            pk = self.df[c].value_counts(normalize=True, dropna = False).values
             entropy = round(self.get_entropy(pk, len(self.df)),2)
             if tauxnan >= taux_seuil:
                 nanames.append(c)
