@@ -1,32 +1,42 @@
 ### Opendata University Challenge DPE
 
-Last update : 23/12/2024
+Last update : 21/01/2025
 
 #### Documentation du projet 
-
+- Problématique, objectifs, livrables etc.. *(déjà fait - à compléter)*
 - Source : [Opendata university challenge DPE (defis data gouv)](https://defis.data.gouv.fr/defis/diagnostics-de-performance-energetique).
-- TBD : problématique, objectifs, livrables etc.. *(déjà fait - à compléter)*
 
 #### Données
 - Périmètre : PARIS 2018 
-- Origine dataset : classe pour extraire les données croisées consommations ENEDIS - API BAN - DPE ADEME  
-- Résultats des extracts par exploitation des API : exemples [ici](ressources/data/)
+- Source du dataset : Worflow data (données croisées) issues :
+    * des [consommations d'électricité d'ENEDIS](https://data.enedis.fr/explore/dataset/consommation-annuelle-residentielle-par-adresse/information/)
+    * de l'API de la Base Nationale des Adresses ([BAN](https://guides.data.gouv.fr/reutiliser-des-donnees/utiliser-les-api-geographiques/utiliser-lapi-adresse/rappel-donnees-adresses))
+    * de la base des [DPE de l'ADEME](https://data.ademe.fr/datasets/dpe-v2-logements-existants)
+- Descriptif du workflow d'extraction <br><br>
+    ![img](docs/pipeline_data_fetching.png)
+    <br><br>
+- Résultats des extracts du workflow par exploitation des API : exemples [ici](ressources/data/)
 
-#### Utilisation
+#### Installation du projet (en local)
 
-For the project you can make a virtual env if needed. 
+For this project you can make a virtual env if needed. 
 
 - After cloning, in your favorite terminal/shell do :
 ```
 pip install -r requirements.txt
 ```
-To fetch data :
- - Pipeline steps <br><br>
-    ![img](docs/pipeline_data_fetching.png)
-    <br><br>
- - see [this exemple notebook](notebooks/1_database.ipynb) for code.
- - data extraction perf exemple w/o ascyncio - mode unitaire : <br><br>
+- For fetching data :
+ * See [this exemple notebook](notebooks/1_database.ipynb) for code.
+ * Data extraction perf exemple - mode unitaire depuis le notebook cité ci-dessus : <br><br>
  ![img](docs/scope_paris_2018_200_min.png)
+
+- For launching streamlit analytic app and models, run : 
+```
+streamlit run app/main.py
+```
+(TBD : aperçu)
+
+- There is also a docker container available (here)
 
 
 #### Perspectives : 
