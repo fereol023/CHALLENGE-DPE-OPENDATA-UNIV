@@ -92,5 +92,18 @@ def get_today_date():
     return datetime.today().strftime('%Y_%m_%d')
 
 def load_parquet_data(_PATH):
+    """
+    Exemple : load dataframe in notebooks.
+    -------------------------
+    import sys
+    sys.path.append('..')
+    from utils.fonctions import load_parquet_data
+
+    df = load_parquet_data(r'..\ressources\data\2_intermediary\enedis_ban_ademe_extract_PARIS_2022.parquet')
+    df.columns
+    """
     print(f"Loading parquet data from : {_PATH}..")
-    return pd.read_parquet(_PATH)
+    try:
+        return normalize_df_colnames(pd.read_parquet(_PATH))
+    except Exception as e:
+        print(f"Error while loading : {e}")
