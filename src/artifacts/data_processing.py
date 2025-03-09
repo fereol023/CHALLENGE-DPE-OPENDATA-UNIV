@@ -77,6 +77,15 @@ class Nettoyage:
         op= - (pk * np.log(pk) / np.log(L)).sum()
         return op    
 
+    def get_entropy_by_colname(self, colname):
+        tauxnan = round(self.df[colname].isna().sum()/len(self.df),2)
+        pk = self.df[colname].value_counts(normalize=True, dropna = False).values
+        return round(self.get_entropy(pk, len(self.df)), 2)
+    
+    def get_corr_with_target_by_colname(self, colname, col_target='consommation_annuelle_moyenne_par_logement_de_l_adresse_mwh_enedis_with_ban'):
+        assert col_target in self.df.columns, f"Erreur la variable target {col_target} n'est pas dans le dataframe à nettoyer. préciser un autre nom ou corriger orthographe."
+        return self.df[[colname, col_target]].corr().iloc[0, 1]
+
     def delete_colnan(self, taux_seuil):
         print("-> Delete NaN cols..")
         print("Le dataframe contient initialement {} colonnes et {} lignes.".format(len(self.df.columns), len(self.df)))
@@ -183,13 +192,18 @@ class Nettoyage:
         self.variables_typed.update({"fillna by median": col_fill_median})
         return self
 
-    def auto_clean_correlation(self, seuil):
+    def auto_clean_correlation(self, seuil, select_with_entropy=False, select_with_target_correlation=False):
         """
         Clean and drop columns (auto) based on correlation.
 
         Technique :
         seuil = seuil au deà du quel on considère que 2 variables sont trop liées.
         Fais la matrice de correlation (Y vs X) -> si le coeff est elevé supprime Y (un peu arbitraire)
+        (compare la valeur aboslue du coef au seuil)
+        (correction - selection arbitraire)
+        entre 2 variables fortement correlées, 
+        - on garde celle qui est le plus correlé à la target
+        - ou celle qui dont l'entropie est la plus elevée
         """
         col = [c for c in self.df.select_dtypes("float").columns]
         correlation_matrix = self.df[col].corr()
@@ -198,7 +212,26 @@ class Nettoyage:
         upper_triangle = correlation_matrix.where(np.triu(np.ones(correlation_matrix.shape), k=1).astype(bool))
 
         # trouver les colonnes ayant une corrélation supérieure au seuil
-        to_drop = [column for column in upper_triangle.columns if any(abs(upper_triangle[column]) > threshold)]
+        to_drop = []
+        for column in upper_triangle.columns:
+            
+            if any(abs(upper_triangle[column]) > threshold):
+                
+                _col_x, _col_y = np.where(abs(upper_triangle[column]) > threshold)
+                
+                if select_with_entropy:
+                    if self.get_entropy_by_colname(_col_x) > self.get_entropy_by_colname(_col_y):
+                        to_drop.append(_col_y)
+                    else:
+                        to_drop.append(_col_x)
+                
+                if select_with_target_correlation:
+                    if self.get_correlation_with_target(_col_x) > self.get_correlation_with_target(_col_y):
+                        to_drop.append(_col_y)
+                    else:
+                        to_drop.append(_col_x)
+                
+        # to_drop = [column for column in upper_triangle.columns if any(abs(upper_triangle[column]) > threshold)]
         for c in self.cols_not_to_deleted:
             if c in to_drop:
                 to_drop.remove(c)
