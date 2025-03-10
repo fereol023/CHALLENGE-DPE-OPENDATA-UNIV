@@ -215,22 +215,21 @@ class Nettoyage:
         to_drop = []
         for column in upper_triangle.columns:
             
-            if any(abs(upper_triangle[column]) > threshold):
-                
-                _col_x, _col_y = np.where(abs(upper_triangle[column]) > threshold)
-                
+            high_corr = upper_triangle[column][abs(upper_triangle[column]) > 0.9].index.tolist()
+            for col in high_corr:
                 if select_with_entropy:
-                    if self.get_entropy_by_colname(_col_x) > self.get_entropy_by_colname(_col_y):
-                        to_drop.append(_col_y)
+                    if self.get_entropy_by_colname(column) > self.get_entropy_by_colname(col):
+                        to_drop.append(col)
                     else:
-                        to_drop.append(_col_x)
+                        to_drop.append(column)
                 
                 if select_with_target_correlation:
-                    if self.get_correlation_with_target(_col_x) > self.get_correlation_with_target(_col_y):
-                        to_drop.append(_col_y)
+                    if self.get_corr_with_target_by_colname(column) > self.get_corr_with_target_by_colname(col):
+                        to_drop.append(col)
                     else:
-                        to_drop.append(_col_x)
-                
+                        to_drop.append(column)
+        
+        to_drop = list(set(to_drop))
         # to_drop = [column for column in upper_triangle.columns if any(abs(upper_triangle[column]) > threshold)]
         for c in self.cols_not_to_deleted:
             if c in to_drop:
@@ -261,12 +260,16 @@ class Nettoyage:
             self.df[new_target] = 1_000*self.df[target]
         return self
 
-    def run(self, compute_target=True):
+    def run(self, compute_target=True, use_entropy_selection=False, use_target_correlation_selection=False):
         d = datetime.datetime.now()
         if self.cols_to_delete_mano:
             self.delete_cols_to_delete_mano()
         # run
-        self.delete_colnan(taux_seuil=0.9).auto_cast_object_columns().fillnan_float_dtypes().auto_clean_correlation(seuil=0.9).compute_arrondissement()
+        self.delete_colnan(taux_seuil=0.9)\
+            .auto_cast_object_columns()\
+            .fillnan_float_dtypes()\
+            .auto_clean_correlation(seuil=0.9,select_with_entropy=use_entropy_selection, select_with_target_correlation=use_target_correlation_selection)\
+            .compute_arrondissement()
         self.df.drop(columns=self.df.select_dtypes(include='datetime').columns)
         if compute_target:
             self.compute_target()
