@@ -52,7 +52,7 @@ class Nettoyage:
             "Identifiant__BAN_ademe","Complément_d'adresse_bâtiment_ademe", "Adresse_brute_ademe", "N°DPE_ademe", "N°_voie_(BAN)_ademe", "Complément_d'adresse_logement_ademe",
             "Adresse_(BAN)_ademe","_geopoint_ademe","Statut_géocodage_ademe", "Description_installation_ECS_ademe", "Description_générateur_ECS_n°1_ademe",
             "Description_générateur_chauffage_n°1_installation_n°1_ademe", "Description_installation_chauffage_n°1_ademe", 
-            "score_enedis_with_ban", "x_enedis_with_ban", "y_enedis_with_ban","importance_enedis_with_ban"]
+            "score_enedis_with_ban", "x_enedis_with_ban", "y_enedis_with_ban","importance_enedis_with_ban", "unnamed_0_enedis_with_ban"]
 
     def __init__(self, df, cols_to_delete_mano=[], inplace=False):
         self.df = df if inplace else df.copy()
@@ -258,7 +258,9 @@ class Nettoyage:
         new_target = target.replace('mwh', 'kwh')
         if target in self.df.columns:
             self.df[new_target] = 1_000*self.df[target]
+            self.df = self.df.drop(target, axis=1)
         return self
+    
 
     def run(self, compute_target=True, use_entropy_selection=False, use_target_correlation_selection=False):
         d = datetime.datetime.now()
@@ -270,7 +272,11 @@ class Nettoyage:
             .fillnan_float_dtypes()\
             .auto_clean_correlation(seuil=0.9,select_with_entropy=use_entropy_selection, select_with_target_correlation=use_target_correlation_selection)\
             .compute_arrondissement()
-        self.df.drop(columns=self.df.select_dtypes(include='datetime').columns)
+        
+        _date_cols = self.df.select_dtypes(include=['datetime', 'datetime64', 'datetime64[ns]']).columns
+        print(f"Il y a {len(_date_cols)} colonnes de dates à supprimer..")
+        self.df = self.df.drop(columns=_date_cols, axis=1)
+        self.df = self.df.drop_duplicates().reset_index(drop=True)
         if compute_target:
             self.compute_target()
         print(f"Le nettoyage a duré : {datetime.datetime.now()-d}")
