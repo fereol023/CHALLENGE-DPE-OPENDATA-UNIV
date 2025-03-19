@@ -52,7 +52,7 @@ class Nettoyage:
             "Identifiant__BAN_ademe","Complément_d'adresse_bâtiment_ademe", "Adresse_brute_ademe", "N°DPE_ademe", "N°_voie_(BAN)_ademe", "Complément_d'adresse_logement_ademe",
             "Adresse_(BAN)_ademe","_geopoint_ademe","Statut_géocodage_ademe", "Description_installation_ECS_ademe", "Description_générateur_ECS_n°1_ademe",
             "Description_générateur_chauffage_n°1_installation_n°1_ademe", "Description_installation_chauffage_n°1_ademe", 
-            "score_enedis_with_ban", "x_enedis_with_ban", "y_enedis_with_ban","importance_enedis_with_ban"]
+            "score_enedis_with_ban", "x_enedis_with_ban", "y_enedis_with_ban","importance_enedis_with_ban", "unnamed_0_enedis_with_ban"]
 
     def __init__(self, df, cols_to_delete_mano=[], inplace=False):
         self.df = df if inplace else df.copy()
@@ -76,6 +76,15 @@ class Nettoyage:
     def get_entropy(self, pk, L):
         op= - (pk * np.log(pk) / np.log(L)).sum()
         return op    
+
+    def get_entropy_by_colname(self, colname):
+        tauxnan = round(self.df[colname].isna().sum()/len(self.df),2)
+        pk = self.df[colname].value_counts(normalize=True, dropna = False).values
+        return round(self.get_entropy(pk, len(self.df)), 2)
+    
+    def get_corr_with_target_by_colname(self, colname, col_target='consommation_annuelle_moyenne_par_logement_de_l_adresse_mwh_enedis_with_ban'):
+        assert col_target in self.df.columns, f"Erreur la variable target {col_target} n'est pas dans le dataframe à nettoyer. préciser un autre nom ou corriger orthographe."
+        return self.df[[colname, col_target]].corr().iloc[0, 1]
 
     def delete_colnan(self, taux_seuil):
         print("-> Delete NaN cols..")
@@ -183,13 +192,18 @@ class Nettoyage:
         self.variables_typed.update({"fillna by median": col_fill_median})
         return self
 
-    def auto_clean_correlation(self, seuil):
+    def auto_clean_correlation(self, seuil, select_with_entropy=False, select_with_target_correlation=False):
         """
         Clean and drop columns (auto) based on correlation.
 
         Technique :
         seuil = seuil au deà du quel on considère que 2 variables sont trop liées.
         Fais la matrice de correlation (Y vs X) -> si le coeff est elevé supprime Y (un peu arbitraire)
+        (compare la valeur aboslue du coef au seuil)
+        (correction - selection arbitraire)
+        entre 2 variables fortement correlées, 
+        - on garde celle qui est le plus correlé à la target
+        - ou celle qui dont l'entropie est la plus elevée
         """
         col = [c for c in self.df.select_dtypes("float").columns]
         correlation_matrix = self.df[col].corr()
@@ -198,7 +212,25 @@ class Nettoyage:
         upper_triangle = correlation_matrix.where(np.triu(np.ones(correlation_matrix.shape), k=1).astype(bool))
 
         # trouver les colonnes ayant une corrélation supérieure au seuil
-        to_drop = [column for column in upper_triangle.columns if any(abs(upper_triangle[column]) > threshold)]
+        to_drop = []
+        for column in upper_triangle.columns:
+            
+            high_corr = upper_triangle[column][abs(upper_triangle[column]) > 0.9].index.tolist()
+            for col in high_corr:
+                if select_with_entropy:
+                    if self.get_entropy_by_colname(column) > self.get_entropy_by_colname(col):
+                        to_drop.append(col)
+                    else:
+                        to_drop.append(column)
+                
+                if select_with_target_correlation:
+                    if self.get_corr_with_target_by_colname(column) > self.get_corr_with_target_by_colname(col):
+                        to_drop.append(col)
+                    else:
+                        to_drop.append(column)
+        
+        to_drop = list(set(to_drop))
+        # to_drop = [column for column in upper_triangle.columns if any(abs(upper_triangle[column]) > threshold)]
         for c in self.cols_not_to_deleted:
             if c in to_drop:
                 to_drop.remove(c)
@@ -226,15 +258,25 @@ class Nettoyage:
         new_target = target.replace('mwh', 'kwh')
         if target in self.df.columns:
             self.df[new_target] = 1_000*self.df[target]
+            self.df = self.df.drop(target, axis=1)
         return self
+    
 
-    def run(self, compute_target=True):
+    def run(self, compute_target=True, use_entropy_selection=False, use_target_correlation_selection=False):
         d = datetime.datetime.now()
         if self.cols_to_delete_mano:
             self.delete_cols_to_delete_mano()
         # run
-        self.delete_colnan(taux_seuil=0.9).auto_cast_object_columns().fillnan_float_dtypes().auto_clean_correlation(seuil=0.9).compute_arrondissement()
-        self.df.drop(columns=self.df.select_dtypes(include='datetime').columns)
+        self.delete_colnan(taux_seuil=0.9)\
+            .auto_cast_object_columns()\
+            .fillnan_float_dtypes()\
+            .auto_clean_correlation(seuil=0.9,select_with_entropy=use_entropy_selection, select_with_target_correlation=use_target_correlation_selection)\
+            .compute_arrondissement()
+        
+        _date_cols = self.df.select_dtypes(include=['datetime', 'datetime64', 'datetime64[ns]']).columns
+        print(f"Il y a {len(_date_cols)} colonnes de dates à supprimer..")
+        self.df = self.df.drop(columns=_date_cols, axis=1)
+        self.df = self.df.drop_duplicates().reset_index(drop=True)
         if compute_target:
             self.compute_target()
         print(f"Le nettoyage a duré : {datetime.datetime.now()-d}")

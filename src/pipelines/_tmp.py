@@ -3,7 +3,7 @@ sys.path.append('.')
 
 from utils.fonctions import get_today_date, load_parquet_data
 from src.artifacts.data_processing import TestExp
-
+from src.artifacts import get_project_root
 
 if __name__=='__main__':
 
@@ -11,3 +11,4 @@ if __name__=='__main__':
     pipeline.run()
 
     path = ""
+    print(get_project_root())
