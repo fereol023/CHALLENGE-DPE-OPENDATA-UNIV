@@ -4,8 +4,8 @@ from contents import page1, page2, page3
 # st.set_option('deprecation.showPyplotGlobalUse', False)
 
 pages = {
-    "Page 1 - EDA": page1.main,
-    "Page 2 - Modèle 1": page2.main,
+    "Page 1 - Présentation générale": page1.main,
+    "Page 2 - EDA": page2.main,
     "Page 3 - Modèle 2": page3.main
 }
 
