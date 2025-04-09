@@ -6,7 +6,7 @@ from contents import page1, page2, page3
 pages = {
     "Page 1 - Présentation générale": page1.main,
     "Page 2 - EDA": page2.main,
-    "Page 3 - Modèle 2": page3.main
+    "Page 3 - Modélisation": page3.main
 }
 
 st.sidebar.title('Navigation')
