@@ -61,7 +61,7 @@ class Nettoyage:
         self.cols_to_delete_mano = normalize_colnames_list(self.cols_to_delete_mano)
         self.variables_deleted = {"mano": self.cols_to_delete_mano}
         self.variables_typed = {}
-        self.cols_not_to_deleted = [c for c in self.df.columns if ('conso' in c) and ('enedis' in c)]
+        self.cols_not_to_deleted = normalize_colnames_list(["Consommation annuelle moyenne par logement de l'adresse (MWh)_enedis_with_ban"])
 
     def delete_cols_to_delete_mano(self):
         print("-> Delete cols mano..")
