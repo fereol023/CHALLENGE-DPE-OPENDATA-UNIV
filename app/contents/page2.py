@@ -3,7 +3,7 @@ from contents import *
 
 
 def main():
-    df = load_parquet_data('ressources/data/2_intermediary/enedis_ban_ademe_extract_PARIS_2022.parquet')
+    df = load_parquet_data('ressources/data/2_intermediary/enedis_ban_ademe_extract_PARIS_2022.parquet').head(10)
     
     st.title('Analyse Exploratoire des Données')
 
@@ -15,7 +15,7 @@ def main():
     leur performance énergétique et d'autres caractéristiques pertinentes.
     ''')
     st.header('Aperçu des données')
-    st.dataframe(df.head(10))
+    st.dataframe(df)
     
 
     st.header('la répartion des DPE')

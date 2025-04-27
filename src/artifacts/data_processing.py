@@ -255,10 +255,10 @@ class Nettoyage:
     
     def compute_target(self):
         target = normalize_colnames_list(["Consommation annuelle moyenne par logement de l'adresse (MWh)_enedis_with_ban"])[0]
-        new_target = target.replace('mwh', 'kwh')
-        if target in self.df.columns:
-            self.df[new_target] = 1_000*self.df[target]
-            self.df = self.df.drop(target, axis=1)
+        # new_target = target.replace('mwh', 'kwh')
+        if (target in self.df.columns) and ('surface_habitable_logement_ademe' in self.df.columns) :
+            self.df['conso_kwh_m2'] = self.df[target] *1000 / self.df['surface_habitable_logement_ademe']
+            self.df = self.df.drop(columns=[target], axis=1)
         return self
     
 
