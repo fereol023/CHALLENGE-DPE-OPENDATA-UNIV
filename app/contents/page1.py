@@ -31,5 +31,5 @@ Rénovation énergétique est un levier économique clé car les bâtiments 
     '''
     st.markdown(multi)
 
-    st.header('Modèle de consommation électrique')
+    # st.header('Modèle de consommation électrique')
     
