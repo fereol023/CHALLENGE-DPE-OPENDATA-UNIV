@@ -1,7 +1,7 @@
 from contents import *
 
 
-def main():
+def main(selected_ville, selected_annee):
     st.title('Diagnostics de performance énergétique  -  Paris 2022')
     st.header('Présentation générale du projet')
     
