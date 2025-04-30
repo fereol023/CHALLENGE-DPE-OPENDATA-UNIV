@@ -3,7 +3,7 @@ import pickle
 import gzip
 
 # model : version : path
-# load from yaml maybe or json config
+# load from yaml maybe or json
 models = {
     'Régression ridge': {
         'ridge_version_1': {
