@@ -1,54 +1,58 @@
-import streamlit as st
-import mlflow
-from mlflow.tracking import MlflowClient
-import pandas as pd
+from contents import *
+import pickle
+import gzip
 
-def main():
+# model : version : path
+# load from yaml maybe or json config
+models = {
+    'Régression ridge': {
+        'ridge_version_1': {
+            'path': 'ressources/models/mdlrf.pkl',
+            'description': 'description'
+        }
+    },
+    'Régression lasso': {
+        'lasso_version_1': {
+            'path': 'ressources/models/mdlrf.pkl',
+            'description': 'description'
+        }
+    },
+    'Régression par arbre de décision': {
+        'dt_version_1': {
+            'path': 'ressources/models/mdlrf.pkl',
+            'description': 'description'
+        }
+    },
+    'Régression par arbre par forêt aléatoire': {
+        'rf_version_1': {
+            'path': 'ressources/models/mdlrf.pkl',
+            'description': 'description'
+        }
+    },
+}
 
-    # connexion au serveur MLflow
-    mlflow.set_tracking_uri("http://127.0.0.1:5000")  
-    client = MlflowClient()
+def load_model(file_path):
+    pass
 
-    st.title("Visualisation des expériences MLflow")
+def main(selected_ville, selected_annee):
 
-    # Récupérer toutes les expériences et afficher
-    experiments = client.search_experiments()
-    experiment_names = [exp.name for exp in experiments]
-    selected_experiment_name = st.selectbox("Sélectionnez une expérience", experiment_names)
+    st.subheader("Modélisation de la consommation électrique (kWh/m²/an)")
+    st.write(f"Ville sélectionnée : {selected_ville}")
+    st.write(f"Année sélectionnée : {selected_annee}")
 
-    # afficher les runs de l'expérience sélectionnée
-    selected_experiment = next(exp for exp in experiments if exp.name == selected_experiment_name)
-    runs = client.search_runs(selected_experiment.experiment_id, order_by=["start_time DESC"])
+    st.sidebar.markdown("-------------------")
+    st.sidebar.header('Choix modèle')
+    model_selected = st.sidebar.selectbox(
+        'Sélectionner le modèle',
+        list(models.keys())
+    )
+    model_selected_version = st.sidebar.radio(
+        'Sélectionner la version du modèle',
+        list(models[model_selected].keys())
+    )
 
-    # résultats sous forme de tableau
-    if runs:
-        runs_data = []
-        for run in runs:
-            runs_data.append({
-                "Run ID": run.info.run_id,
-                "Date": run.info.start_time,
-                **run.data.params,  # paramètres
-                **run.data.metrics,  # métriques
-            })
-        
-        # tableau Streamlit
-        runs_df = pd.DataFrame(runs_data)
-        st.dataframe(runs_df)
-
-        # Run pour explorer plus en détail
-        selected_run_id = st.selectbox("Sélectionnez un Run ID", runs_df["Run ID"])
-        if selected_run_id:
-            selected_run = client.get_run(selected_run_id)
-            
-            st.subheader("Paramètres")
-            st.write(selected_run.data.params)
-
-            st.subheader("Métriques")
-            st.write(selected_run.data.metrics)
-            
-            st.subheader("Artefacts")
-            artifacts = client.list_artifacts(selected_run_id)
-            for artifact in artifacts:
-                st.write(artifact.path)
-    else:
-        st.write("Aucun run trouvé pour cette expérience.")
+    fichier = models[model_selected][model_selected_version]['path']
+    mdlrf = load_model(fichier)
+    
+    st.header('Preprocessing et testes d\'hypothèses')
+    st.header('Modélisation')
