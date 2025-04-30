@@ -2,7 +2,7 @@ from contents import *
 
 
 
-def main():
+def main(selected_ville, selected_annee):
     df = load_parquet_data('ressources/data/2_intermediary/enedis_ban_ademe_extract_PARIS_2022.parquet').head(10)
     
     st.title('Analyse Exploratoire des Données')
