@@ -13,3 +13,12 @@ from utils.fonctions import load_parquet_data
 
 def fonction_communes_pages():
     pass
+
+@st.cache_resource
+def load_image(image_path):
+    try:
+        with open(image_path, "rb") as image_file:
+            return image_file.read()
+    except FileNotFoundError:
+        st.error(f"Image not found: {image_path}")
+        return None
