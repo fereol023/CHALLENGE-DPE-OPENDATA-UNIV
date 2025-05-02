@@ -92,18 +92,13 @@ def main(selected_ville, selected_annee):
         
         st.subheader(f"Recherche d'hyperparamètres : :orange[{model_selected_version}]")
         if 'ridge' in model_selected_version:
-            st.image(
-                load_image('ressources/models_fitted/regressions_lineaires/opti_alphas_.png'), 
-                caption='Régression Ridge (L2)',
-                )
+            img = load_image('ressources/models_fitted/regressions_lineaires/ridge_opti_alphas_fereol.png')
+            if img: st.image(img, caption='Régression Ridge (L2) - optis alphas')
         elif 'lasso' in model_selected_version:
-            st.image(
-                load_image('ressources/models_fitted/regressions_lineaires/lasso_opti_alphas_fereol.png'), 
-                caption='Régression Lasso (L1)',
-                )
+            img = load_image('ressources/models_fitted/regressions_lineaires/lasso_opti_alphas_fereol.png')
+            if img: st.image(img, caption='Régression Lasso (L1) - optis alphas')
         else: 
             st.warning("Aucune recherche d'hyperparam. disponible pour la version sélectionnée.")
-        
         
     elif model_selected == 'Régression par arbre de décision':
         st.subheader('Choix : Modèle de régression par arbre de décision')
