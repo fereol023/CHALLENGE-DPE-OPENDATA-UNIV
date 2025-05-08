@@ -17,6 +17,6 @@ st.sidebar.markdown("-------------------")
 
 st.sidebar.header('Filtres')
 ville_filter = st.sidebar.selectbox('Ville', ['Paris', 'Lyon', 'Marseille', 'Toulouse', 'Nice'])
-annee_filter = st.sidebar.selectbox('Année', ['2020', '2021', '2022'])
+annee_filter = st.sidebar.selectbox('Année', ['2022'])
 
 pages[p](ville_filter, annee_filter)

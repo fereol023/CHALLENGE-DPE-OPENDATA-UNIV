@@ -9,7 +9,9 @@ import sys, os
 path = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(path, '../..'))
 
-from utils.fonctions import load_parquet_data
+from utils.fonctions import load_parquet_data, load_pickle
+
+load_pickle_cache = st.cache_data(load_pickle)
 
 def fonction_communes_pages():
     pass
