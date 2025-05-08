@@ -1,17 +1,44 @@
 import json
+import pickle
 import streamlit as st
 import pandas as pd
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+import joblib
 
 import sys, os
 path = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(path, '../..'))
 
 from utils.fonctions import load_parquet_data, load_pickle
+import zipfile
 
-load_pickle_cache = st.cache_data(load_pickle)
+def exception_wrapper(func):
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
+            return None
+    return wrapper
+
+def load_pickle_zipped(file_path):
+    try:
+        with zipfile.ZipFile(file_path, 'r') as z:
+            for file_name in z.namelist():
+                with z.open(file_name) as f:
+                    return joblib.load(f)
+    except FileNotFoundError:
+        st.error(f"File not found: {file_path}")
+        return None
+    except zipfile.BadZipFile:
+        st.error(f"Invalid zip file: {file_path}")
+        return None
+
+load_pickled_data_cache = st.cache_data(load_pickle)
+load_pickled_model_cache = st.cache_resource(load_pickle)
+load_pickled_zipped_model_cache = st.cache_resource(load_pickle_zipped)
 
 def fonction_communes_pages():
     pass
