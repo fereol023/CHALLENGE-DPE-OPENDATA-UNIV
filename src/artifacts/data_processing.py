@@ -249,7 +249,11 @@ class Nettoyage:
         return re.sub(r'\D', '', str(x))
 
     def compute_arrondissement(self):
-        self.df["arrondissement"] = self.df["district_enedis_with_ban"].apply(self.extract_digit).astype('string')
+        if "district_enedis_with_ban" not in self.df.columns:
+            print("-> Pas de colonne district_enedis_with_ban dans le df")
+            self.df["arrondissement"] = -1
+            return self
+        self.df["arrondissement"] = self.df["district_enedis_with_ban"].apply(self.extract_digit).astype('int32')
         self.df = self.df.drop('district_enedis_with_ban', axis=1)
         return self
     
