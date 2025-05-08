@@ -110,6 +110,8 @@ def main(selected_ville, selected_annee):
 
     model_description = models[model_selected][model_selected_version]['description']
     
+    st.header('Preprocessing et testes d\'hypothèses')
+    
     st.header('Preprocessing et tests d\'hypothèses')
     st.header('Modélisation')
     st.markdown(f"""
