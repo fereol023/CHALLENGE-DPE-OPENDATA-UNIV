@@ -33,9 +33,9 @@ Rénovation énergétique est un levier économique clé car les bâtiments 
 • De valider la conformité au réel des estimations de consommation électrique présentées dans les DPE par des comparaisons aux données de consommations réelles et de quantifier la variabilité due aux comportements individuels.
     '''
     st.markdown(multi)
-
-    st.subheader("Qu'est-ce que le DPE ?")
-    st.markdown('''
+    
+st.subheader("Qu'est-ce que le DPE ?")
+st.markdown('''
 Le Diagnostic de Performance Énergétique (DPE) est un document qui évalue la consommation énergétique d'un bâtiment et 
 son impact sur l'environnement. Il attribue une étiquette allant de A (très performant) à G (très peu performant), 
 permettant ainsi d'identifier les "passoires énergétiques" qui consomment beaucoup d'énergie 
@@ -67,5 +67,3 @@ Le DPE doit être réalisé par des professionnels certifiés, appelés diagnost
 - 2021 : Introduction d'une nouvelle méthode de calcul et d'étiquettes opposables. Le DPE est devenu un document ayant valeur juridique. 
 - 2023 et au-delà : De nouvelles réformes sont prévues pour améliorer la précision du DPE et renforcer les exigences réglementaires. 
 ''')
-
-    st.header('Modèle de consommation électrique')
