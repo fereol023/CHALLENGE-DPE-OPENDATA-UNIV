@@ -2,7 +2,7 @@ from contents import *
 import pickle
 import gzip
 
-opti_alphas_regressions_df = load_pickle_cache('ressources/models_fitted/regressions_lineaires/opti_alphas.pkl')
+opti_alphas_regressions_df = load_pickled_data_cache('ressources/models_fitted/regressions_lineaires/opti_alphas.pkl')
 opti_alphas_regressions_df["r2"] = 100 * round(opti_alphas_regressions_df["r2"], 3)
 opti_alphas_regressions_df["mape"] = round(100 * opti_alphas_regressions_df["mape"], 3)
 opti_alphas_regressions_df["rmse"] = round(opti_alphas_regressions_df["rmse"], 3)
@@ -73,13 +73,13 @@ models = {
     },
     'Régression par arbre de décision': {
         'dt_version_1': {
-            'path': 'ressources/models/mdlrf.pkl',
-            'description': 'description'
+            'path': 'ressources/models_fitted/decision_tree_model_v1_carla.pkl',
+            'description': 'description',
         }
     },
     'Régression par arbre par forêt aléatoire': {
         'rf_version_1': {
-            'path': 'ressources/models/mdlrf.pkl',
+            'path': 'ressources/models_fitted/random_forest_model_v1_carla.pkl.zip',
             'description': 'description'
         }
     },
@@ -180,8 +180,10 @@ def main(selected_ville, selected_annee):
         
     elif model_selected == 'Régression par arbre de décision':
         st.subheader('Choix : Modèle de régression par arbre de décision')
-        c21, c22 = st.columns(2)
-        c21.markdown(
+        obj_model_dt = joblib.load(models[model_selected][model_selected_version]['path'])
+        st.write(obj_model_dt)
+        st.write(obj_model_dt.feature_names_in_)
+        st.markdown(
             """
             La régression par arbre de décision est une méthode d'apprentissage supervisé 
             qui utilise un arbre de décision pour prédire une variable continue. 
@@ -193,12 +195,14 @@ def main(selected_ville, selected_annee):
             """
         )
         img = load_image('ressources/models_fitted/arbre_decision_fereol.png')
-        if img: c22.image(img, caption='Régression par arbre de décision')
+        if img: st.image(img, caption='Régression par arbre de décision')
         
     elif model_selected == 'Régression par arbre par forêt aléatoire':
         st.subheader('Choix : Modèle de régression par forêt aléatoire')
-        c31, c32 = st.columns(2)
-        c31.markdown(
+        obj_model_rf = load_pickle_zipped(models[model_selected][model_selected_version]['path'])
+        st.write(obj_model_rf)
+        st.write(obj_model_rf.feature_names_in_)
+        st.markdown(
             """
             La régression par forêt aléatoire est une méthode d'apprentissage supervisé 
             qui utilise un ensemble d'arbres de décision pour prédire une variable continue. 
@@ -210,7 +214,7 @@ def main(selected_ville, selected_annee):
             """
         )
         img = load_image('ressources/models_fitted/mdlrf.png')
-        if img: c32.image(img, caption='Régression par forêt aléatoire')
+        if img: st.image(img, caption='Régression par forêt aléatoire')
     else:
         st.error("Modèle non reconnu. Veuillez sélectionner un modèle valide.")
         return
