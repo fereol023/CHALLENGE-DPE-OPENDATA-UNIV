@@ -1,0 +1,2 @@
+[paths]
+prod_data_folder = "app/data/prod"

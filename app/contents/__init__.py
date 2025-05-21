@@ -1,4 +1,4 @@
-import json
+import json, os
 import pickle
 import streamlit as st
 import pandas as pd
@@ -23,12 +23,17 @@ def exception_wrapper(func):
             return None
     return wrapper
 
-def load_pickle_zipped(file_path):
+def load_pickle_zipped(file_path, type='joblib'):
     try:
         with zipfile.ZipFile(file_path, 'r') as z:
             for file_name in z.namelist():
                 with z.open(file_name) as f:
-                    return joblib.load(f)
+                    if type=='joblib':
+                        return joblib.load(f)
+                    elif type=='pickle':
+                        return pickle.load(f)
+                    else:
+                        raise Exception("Underneath file not handled")
     except FileNotFoundError:
         st.error(f"File not found: {file_path}")
         return None
