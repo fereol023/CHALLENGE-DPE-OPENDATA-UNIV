@@ -1,25 +1,47 @@
 from contents import *
 import plotly.express as px
 import httpx
+from ressources.models_fitted.random_forests.model_features import df_summary_with_mapping
 
 URL_PRICING_KWH = "https://open-dpe.fr/api/v1/electricity.php?tarif=EDF_bleu"
 PROD_DATA_FILE = "app/data/prod.json"
-query_pricing = httpx.get(URL_PRICING_KWH)
-if query_pricing.status_code==200:
-    res = query_pricing.json()
-    metadata_tarif = {
-        'source': 'EDF - Tarif Bleu (API real time)',
-        'description': 'Tarif reglementé - fixé par les pouvoirs publics.',
-        'url': 'https://particulier.edf.fr/fr/accueil/electricite-gaz/tarif-bleu.html',
-        'date_tarif': res.get('date_tarif', 'NA'),
-        'date_extraction': res.get('date_extraction', 'NA'),
-        'prix_kwh_base': res.get('options').get('base').get('prix_kWh', 0),
-        'prix_hc': 0,
-        'prix_hp': 0
+metadata_tarif = {
+    'source': 'EDF - Tarif Bleu (API real time)',
+    'description': 'Tarif reglementé - fixé par les pouvoirs publics.',
+    'url': 'https://particulier.edf.fr/fr/accueil/electricite-gaz/tarif-bleu.html',
+    'date_tarif': '01/02/2025',
+    'date_extraction': '09/02/2025',
+    'prix_kwh_base': 0.2016, # prix backp
+    'prix_hc': 'NC',
+    'prix_hp': 'NC'
+}
+try:
+    query_pricing = httpx.get(URL_PRICING_KWH, timeout=5)
+    if query_pricing.status_code == 200:
+        res = query_pricing.json()
+        metadata_tarif.update({
+            'date_tarif': res.get('date_tarif', 'NA'),
+            'date_extraction': res.get('date_extraction', 'NA'),
+            'prix_kwh_base': res.get('options', {}).get('base', {}).get('prix_kWh', 0),
+        })
+except httpx.TimeoutException:
+    print("Timeout occurred while fetching pricing data.")
+except Exception as e:
+    print(f"Error occurred while fetching pricing data: {e}")
+
+PRIX_KWH_EUROS = metadata_tarif.get("prix_kwh_base")
+
+def get_dpe_conso_range(inp):
+    mapping = {
+        "A": "inférieure à 70 kWh/m2/an",	
+        "B": "entre 71 et 110 kWh/m2/an",	
+        "C": "entre 111 et 180 kWh/m2/an",	
+        "D": "entre 181 et 250 kWh/m2/an",	
+        "E": "entre 251 et 330 kWh/m2/an",	
+        "F": "entre 331 et 420 kWh/m2/an",	
+        "G": "supérieure à 421 kWh/m2.an"
     }
-    PRIX_KWH_EUROS = metadata_tarif.get("prix_kwh_base")
-else:
-    PRIX_KWH_EUROS = 0.05
+    return mapping.get(inp, 'NC')
 
 def load_hist_data():
     one = pd.read_json("app/data/train_df.json").sort_index(axis=1)
@@ -27,21 +49,14 @@ def load_hist_data():
     two = pd.read_json("app/data/prod.json", lines=True).sort_index(axis=1).drop_duplicates() 
     return pd.concat([one, two], axis=0)
 
-def get_model_features_config():
-    """
-    Get the features used in the model.
-    """
-    from ressources.models_fitted.random_forests.model_features import df_summary_with_mapping
-    return df_summary_with_mapping
-
 model_metadata = {
-    "path": "ressources/models_fitted/random_forests/random_forest_model_v1_restreint.pkl.zip",
+    "path": "ressources/models_fitted/random_forests/random_forest_model_v1_restreint.pkl",
     "type": "Random Forest",
     "version": "rf_version_1_rest",
     "train_scope": None,
     "description": "Modèle de Random Forest pour la prédiction de la consommation électrique",
     "model_state": None,
-    "features": get_model_features_config()
+    "features": df_summary_with_mapping
 }
 
 def get_dpe_label(dpe_value_idx):
@@ -57,7 +72,7 @@ def main(selected_ville, selected_annee, model_metadata=model_metadata):
     load_hist_data()
     st.subheader("Modélisation de la consommation électrique et des économies réalisables")
 
-    loaded_model = load_pickle_zipped(model_metadata["path"], type="pickle")
+    loaded_model = load_pickle(model_metadata["path"]) #, type="pickle")
     model_state = ":green[loaded]" if loaded_model else ":red[error/not loaded]"
 
     not_show_metadata_model = st.toggle("Cacher les metadata du modèle")
@@ -76,7 +91,7 @@ def main(selected_ville, selected_annee, model_metadata=model_metadata):
     st.markdown("--------------------")
     if loaded_model:
         st.subheader("Application")
-        model_features_config: dict = get_model_features_config()
+        model_features_config: dict = df_summary_with_mapping
         # st.write(model_features_config)
         # formulaire de saisie sur 3 colonnes à partir de model_fetures
         FLOAT_COLS, CATEG_COLS = [], []
@@ -94,9 +109,10 @@ def main(selected_ville, selected_annee, model_metadata=model_metadata):
         for feature in FLOAT_COLS[:_milieu]:
             # default is min+max//2
             config = model_features_config.get(feature)
+            label = config.get('desc', '')
             _default = float(config.get('def', 0))
             input_values[feature] = col11.slider(
-                f"{feature} {config.get('unit', '')}",
+                f"{label}",
                 min_value=float(config.get('min', 0)),
                 max_value=float(config.get('max', 100)),
                 value=_default
@@ -104,9 +120,10 @@ def main(selected_ville, selected_annee, model_metadata=model_metadata):
         for feature in FLOAT_COLS[_milieu:]:
             # default is min+max//2
             config = model_features_config.get(feature)
+            label = config.get('desc', '')
             _default = float(config.get('def', 0))
             input_values[feature] = col12.slider(
-                f"{feature} {config.get('unit', '')}",
+                f"{label}",
                 min_value=float(config.get('min', 0)),
                 max_value=float(config.get('max', 100)),
                 value=_default
@@ -116,11 +133,13 @@ def main(selected_ville, selected_annee, model_metadata=model_metadata):
         _milieu = len(CATEG_COLS)//2
         for feature in CATEG_COLS[:_milieu]:
             config = model_features_config.get(feature)
-            v = col21.selectbox(f"{feature}", options=config['mapping'], index=0)
+            label = config.get('desc', '')
+            v = col21.selectbox(f"{label}", options=config['mapping'], index=0)
             input_values[feature] = config.get('mapping').get(v)
         for feature in CATEG_COLS[_milieu:]:
             config = model_features_config.get(feature)
-            v = col22.selectbox(f"{feature}", options=config['mapping'], index=0)
+            label = config.get('desc', '')
+            v = col22.selectbox(f"{label}", options=config['mapping'], index=0)
             input_values[feature] = config.get('mapping').get(v)
 
         input_dpe_value = input_values.get('etiquette_dpe_ademe')
@@ -174,10 +193,11 @@ def main(selected_ville, selected_annee, model_metadata=model_metadata):
             
             st.success(f"""
                 **Résultats :**\n
-                "➡️ Etiquette DPE : {get_dpe_label(input_dpe_value)}\n
-                "✅ Consommation kwh/an": *{round(prediction[input_dpe_value]*input_values.get("surface_habitable_logement_ademe"), 3)}*\n
-                "✅ Consommation kwh/m2/an": *{round(prediction[input_dpe_value], 3)}*,\n
-                "💶 Consommation euros/an": *{round(prediction[input_dpe_value] * PRIX_KWH_EUROS * input_values.get("surface_habitable_logement_ademe"), 3)}*,\n
+                "➡️ Etiquette DPE" : ***{get_dpe_label(input_dpe_value)}***\n
+                "📊 Consommation estimée sur la base du DPE (min-max)" : ***{get_dpe_conso_range(get_dpe_label(input_dpe_value))}***\n
+                "✅ Consommation kwh/an estimée": ***{round(prediction[input_dpe_value]*input_values.get("surface_habitable_logement_ademe"), 3)}***\n
+                "✅ Consommation kwh/m2/an estimée": ***{round(prediction[input_dpe_value], 3)}***,\n
+                "💶 Consommation euros/an estimée": ***{round(prediction[input_dpe_value] * PRIX_KWH_EUROS * input_values.get("surface_habitable_logement_ademe"), 3)}***,\n
                 """)
             st.markdown("Informations sur la tarification appliquée")
             st.write(metadata_tarif)
@@ -296,12 +316,20 @@ def main(selected_ville, selected_annee, model_metadata=model_metadata):
             d2.plotly_chart(fig, use_container_width=True)
 
         if 'int' in model_features_config.get(drift_feature_selected, {}).get('dtype'):
-            fig = px.bar(
-                feature_drift_df.value_counts().reset_index(),
-                x='index',
-                y=drift_feature_selected,
-                labels={'index': drift_feature_selected, drift_feature_selected: 'Count'},
-                title=f"Distribution of {drift_feature_selected}"
-            )
-            fig.update_layout(yaxis_title="Count", xaxis_title=drift_feature_selected)
-            d2.plotly_chart(fig, use_container_width=True)
+            
+            d2.markdown("")
+            d2.markdown("")
+            d2.markdown("**Probability distribution - categ. feature**")
+            d2.markdown("")
+
+            feature_train_data = train_data[[drift_feature_selected]].copy().value_counts(normalize=True).reset_index().set_index(drift_feature_selected)
+            feature_hist_data = hist_data[[drift_feature_selected]].copy().value_counts(normalize=True).reset_index().set_index(drift_feature_selected)
+            feature_train_data = feature_train_data.rename(columns={'proportion': 'training_proportions'})
+            feature_hist_data = feature_hist_data.rename(columns={'proportion': 'historic_proportions'})
+
+            feature_all_data = pd.merge(feature_hist_data, feature_train_data, left_index=True, right_index=True)
+
+            m_ = model_features_config.get(drift_feature_selected, {}).get('mapping', {})
+
+            d2.dataframe(feature_all_data)
+            d2.write(m_)
